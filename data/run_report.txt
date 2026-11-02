@@ -1,0 +1,9 @@
+GeM 'excipient': FAILED ConnectionError: HTTPSConnectionPool(host='bidplus.gem.gov.in', port=443): Max retries exceeded with url: /all-bids (Caused by NewConnectionError("HTTPSConnection(host
+GeM 'active pharmaceutical ingredient': FAILED ConnectionError: HTTPSConnectionPool(host='bidplus.gem.gov.in', port=443): Max retries exceeded with url: /all-bids (Caused by NewConnectionError("HTTPSConnection(host
+GeM 'microcrystalline cellulose': FAILED ConnectionError: HTTPSConnectionPool(host='bidplus.gem.gov.in', port=443): Max retries exceeded with url: /all-bids (Caused by NewConnectionError("HTTPSConnection(host
+GeM 'hpmc': FAILED ConnectionError: HTTPSConnectionPool(host='bidplus.gem.gov.in', port=443): Max retries exceeded with url: /all-bids (Caused by NewConnectionError("HTTPSConnection(host
+GeM 'lactose': FAILED ConnectionError: HTTPSConnectionPool(host='bidplus.gem.gov.in', port=443): Max retries exceeded with url: /all-bids (Caused by NewConnectionError("HTTPSConnection(host
+GeM 'paracetamol': FAILED ConnectionError: HTTPSConnectionPool(host='bidplus.gem.gov.in', port=443): Max retries exceeded with url: /all-bids (Caused by NewConnectionError("HTTPSConnection(host
+GeM 'pharmaceutical raw material': FAILED ConnectionError: HTTPSConnectionPool(host='bidplus.gem.gov.in', port=443): Max retries exceeded with url: /all-bids (Caused by NewConnectionError("HTTPSConnection(host
+New tenders this run: 0
+WHO PQ API list: 50 India rows
