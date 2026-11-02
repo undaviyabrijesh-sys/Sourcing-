@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sourcing Radar</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--tx:#14181f;--mut:#667085;--bd:#e3e6eb;--ac:#0b6e5c;--acx:#fff;--hi:#e0f3ec;--warn:#b54708;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#0f1318;--card:#171c23;--tx:#e8ebf0;--mut:#9aa4b2;--bd:#2a313b;--ac:#3fb89c;--acx:#06201a;--hi:#143028;--warn:#f79009}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:14px 14px 4px}h1{font-size:19px;margin:0}
+nav{display:flex;gap:6px;padding:8px 14px;position:sticky;top:0;background:var(--bg);z-index:5}
+main{padding:4px 14px 40px;max-width:760px;margin:auto}
+button,input{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:8px 12px}
+button.on{background:var(--ac);color:var(--acx);border-color:var(--ac)}
+input{width:100%;margin:6px 0 10px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin:10px 0}
+.mut{color:var(--mut);font-size:13px;margin-top:3px;word-break:break-word}
+.tag{font-size:11px;background:var(--hi);color:var(--ac);padding:2px 8px;border-radius:99px}
+.soon{color:var(--warn);font-weight:600}
+a{color:var(--ac)}.empty{text-align:center;padding:30px 0;color:var(--mut)}
+pre{white-space:pre-wrap;font-size:12px;color:var(--mut)}
+</style></head><body>
+<header><h1>🔎 Sourcing Radar</h1><div class="mut">Pharma tenders and India API suppliers</div></header>
+<nav><button id="t-ten" onclick="go('ten')">Tenders</button><button id="t-sup" onclick="go('sup')">Suppliers</button><button id="t-rep" onclick="go('rep')">Status</button></nav>
+<main><input id="q" placeholder="Search…" oninput="draw()"><div id="v"></div></main>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let tab='ten',D={ten:null,sup:null,rep:null};
+function csv(t){const R=[];let r=[],c='',q=false;for(let i=0;i<t.length;i++){const h=t[i];if(q){if(h=='"'){if(t[i+1]=='"'){c+='"';i++}else q=false}else c+=h}else if(h=='"')q=true;else if(h==','){r.push(c);c=''}else if(h=='\n'||h=='\r'){if(h=='\r'&&t[i+1]=='\n')i++;r.push(c);c='';if(r.some(x=>x.trim()))R.push(r);r=[]}else c+=h}r.push(c);if(r.some(x=>x.trim()))R.push(r);return R}
+async function get(f){try{const r=await fetch(f+'?t='+Date.now());if(!r.ok)return null;return await r.text()}catch(e){return null}}
+function rows(t){if(!t)return null;const R=csv(t);if(!R.length)return[];const H=R[0];return R.slice(1).map(x=>Object.fromEntries(H.map((h,i)=>[h,x[i]||''])))}
+async function init(){D.ten=rows(await get('data/tenders.csv'));D.sup=rows(await get('data/suppliers_who_india.csv'));D.rep=await get('data/run_report.txt');go('ten')}
+function go(t){tab=t;['ten','sup','rep'].forEach(k=>$('#t-'+k).className=k===t?'on':'');$('#q').style.display=t==='rep'?'none':'block';draw()}
+function draw(){const q=$('#q').value.toLowerCase(),v=$('#v');
+if(tab==='rep'){v.innerHTML=D.rep?`<div class="card"><pre>${esc(D.rep)}</pre></div>`:'<div class="empty">No run report yet. Run the workflow in the Actions tab.</div>';return}
+const L=D[tab];if(!L){v.innerHTML='<div class="empty">No data yet. Run the workflow in the Actions tab, then reload.</div>';return}
+const F=L.filter(r=>!q||Object.values(r).join(' ').toLowerCase().includes(q));
+if(!F.length){v.innerHTML='<div class="empty">Nothing matches.</div>';return}
+if(tab==='ten'){const today=new Date().toISOString().slice(0,10);
+const A=F.filter(r=>!r.ends||r.ends>=today).sort((a,b)=>(a.ends||'9').localeCompare(b.ends||'9'));
+v.innerHTML=`<div class="mut">${A.length} open tenders, soonest closing first</div>`+A.slice(0,200).map(r=>{const d=r.ends?Math.round((new Date(r.ends)-new Date(today))/864e5):null;
+return `<div class="card"><b>${esc(r.item)}</b><div class="mut">${esc(r.buyer)}</div><div class="mut ${d!==null&&d<=3?'soon':''}">Closes ${esc(r.ends||'—')}${d!==null?` (${d} day${d===1?'':'s'} left)`:''}</div><div style="margin-top:8px"><span class="tag">${esc(r.keyword)}</span> <a href="${esc(r.link)}" target="_blank" rel="noopener noreferrer">Open on GeM</a></div></div>`}).join('')}
+else{const K=Object.keys(F[0]);
+v.innerHTML=`<div class="mut">${F.length} suppliers</div>`+F.slice(0,200).map(r=>`<div class="card"><b>${esc(r[K[0]])}</b>${K.slice(1).filter(k=>r[k]).map(k=>`<div class="mut">${esc(k)}: ${esc(r[k])}</div>`).join('')}</div>`).join('')}}
+init();
+</script></body></html>
